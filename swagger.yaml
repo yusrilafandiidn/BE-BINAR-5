@@ -1,0 +1,989 @@
+openapi: 3.0.3
+info:
+  title: Basic Banking System
+  description: |-
+    Challenge Chapter 5
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api/v1
+  - url: https://test.binarchallenges.com/api/v1
+  - url: https://binarchallenges.com/api/v1
+
+paths:
+  /auth/users/register:
+    post:
+      tags:
+        - Auth
+      summary: Register a user
+      description: User registration data
+      requestBody:
+        $ref: '#/components/requestBodies/CreateUser'
+      responses:
+        '201':
+          description: User and profile created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserModel"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/AuthErr"
+
+  /auth/users/login:
+    post:
+      tags:
+        - Auth
+      summary: Login
+      description: Login to homepage
+      requestBody:
+        $ref: '#/components/requestBodies/Login'
+      responses:
+        '201':
+          description: Welcome
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserLogin"
+        '400':
+          description: Invalid Email or Password
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LoginErr"
+  
+  /auth/users/whoami:
+    get:
+      tags:
+        - Auth
+      summary: Whoami
+      description: Who is login
+      responses:
+        '201':
+          description: Hallo
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Whoami"
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  /auth/users/authenticate:
+    get:
+      tags:
+        - Auth
+      summary: Authenticate
+      description: User authentication
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Whoami"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/AuthErr"
+      security:
+        - bearerAuth: []
+
+  /auth/users/pagination:
+    get:
+      tags:
+        - User
+      operationId: get-fetch-all-user
+      summary: Pagination
+      description: get all users with pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: "page of content"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: "limit content per page"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pagination:
+                            $ref: "#/components/schemas/Pagination"
+                          users:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/UserModel"
+      security:
+        - bearerAuth: []
+
+  /auth/users/all:
+    get:
+      tags:
+        - User
+      summary: All user
+      description: get all user
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AllUser"
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  "/auth/users/detail/{userId}":
+    get:
+      tags:
+        - User
+      operationId: get-fetch-user-detail
+      summary: Get users
+      description: get users by id
+      parameters:
+        - in: path
+          name: userId
+          schema:
+            type: integer
+          required: true
+          description: "userId wajib diisi"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserModel"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/users/update/7:
+    put:
+      tags:
+        - User
+      operationId: get-fetch-user-detail
+      summary: Update users
+      description: update users by id
+      requestBody:
+        $ref: '#/components/requestBodies/UpdateUser'
+
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UpdateUser"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/users/delete/7:
+    delete:
+      tags:
+        - User
+      operationId: get-fetch-user-detail
+      summary: Delete users
+      description: delete users by id
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/DeleteResponse"
+                  - type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/accounts/create:
+    post:
+      tags:
+        - Account
+      summary: Create account
+      description: Create account
+      requestBody:
+        $ref: '#/components/requestBodies/CreateAccount'
+      responses:
+        '201':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AccountModel"
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  /auth/accounts/pagination:
+    get:
+      tags:
+        - Account
+      operationId: get-fetch-all-account
+      summary: Pagination
+      description: get all accounts with pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: "page of content"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: "limit content per page"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pagination:
+                            $ref: "#/components/schemas/Pagination"
+                          users:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/AccountModel"
+      security:
+        - bearerAuth: []
+
+  /auth/accounts/all:
+    get:
+      tags:
+        - Account
+      summary: All account
+      description: get all account
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AllUser"
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  "/auth/accounts/detail/{accountId}":
+    get:
+      tags:
+        - Account
+      operationId: get-fetch-account-detail
+      summary: Get accounts
+      description: get detail accounts by id
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: integer
+          required: true
+          description: "accountId wajib diisi"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AccountModel"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/accounts/update/2:
+    put:
+      tags:
+        - Account
+      operationId: get-fetch-account-detail
+      summary: Update accounts
+      description: update accounts by id
+      requestBody:
+        $ref: "#/components/requestBodies/UpdateAccount"
+
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UpdateAccount"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/accounts/delete/2:
+    delete:
+      tags:
+        - Account
+      operationId: get-fetch-account-detail
+      summary: Delete accounts
+      description: delete accounts by id
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/DeleteResponse"
+                  - type: object
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+      security:
+        - bearerAuth: []
+
+  /auth/transactions/create:
+    post:
+      tags:
+        - Transaction
+      summary: Create transactions
+      description: Create transaction
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTransaction'
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  /auth/transactions/pagination:
+    get:
+      tags:
+        - Transaction
+      operationId: get-fetch-all-transaction
+      summary: Pagination
+      description: get all transaction with pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          required: false
+          description: "page of content"
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          required: false
+          description: "limit content per page"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          pagination:
+                            $ref: "#/components/schemas/Pagination"
+                          users:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/AccountModel"
+      security:
+        - bearerAuth: []
+
+  /auth/transactions/all:
+    get:
+      tags:
+        - Transaction
+      summary: All transaction
+      description: get all transaction
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AllUser"
+        '400':
+          description: Bad Request
+      security:
+        - bearerAuth: []
+
+  "/auth/transactions/id/{transactionId}":
+    get:
+      tags:
+        - Transaction
+      operationId: get-fetch-transaction-detail
+      summary: Get transaction
+      description: get transaction by id
+      parameters:
+        - in: path
+          name: transactionId
+          schema:
+            type: integer
+          required: true
+          description: "transactionId wajib diisi"
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/BasicResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/AccountModel"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/IdErr"
+
+      security:
+        - bearerAuth: []
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    BasicResponse:
+      title: BasicResponse
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "success"
+
+    DeleteResponse:
+      title: DeleteResponse
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: "Deleted successfully"
+
+    BadRequest:
+      title: BadRequest
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: ""
+
+    LoginErr:
+      title: BadRequest
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "invalid email or password!"
+
+    AuthErr:
+      title: BadRequest
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Authentication failed!"
+
+    IdErr:
+      title: BadRequest
+      type: object
+      properties:
+        status:
+          type: boolean
+          example: false
+        message:
+          type: string
+          example: "Invalid id"
+
+    UserModel:
+      title: UserModel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "sana"
+        email:
+          type: string
+          example: "sana@mail.com"
+        passowrd:
+          type: string
+          example: "password123"
+        password_confirmation:
+          type: string
+          example: "password123"
+        identity_type:
+          type: string
+          example: "KTP"
+        identity_number:
+          type: integer
+          example: 1234567890
+        address:
+          type: string
+          example: "Jl. satu no. 2"
+
+    UserLogin:  
+      title: UserLogin
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "sana"
+        email:
+          type: string
+          example: "sana@mail.com"
+        passowrd:
+          type: string
+          example: "$2b$10$M/5aRfKjVYf7ohLd3BCIx"
+        token:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+
+    Whoami:  
+      title: Whoami
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "sana"
+        email:
+          type: string
+          example: "sana@mail.com"
+        passowrd:
+          type: string
+          example: "password123"
+
+    AllUser:  
+      title: AllUser
+      type: object
+      properties:
+        total_items:
+          type: integer
+          example: 1
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "sana"
+        email:
+          type: string
+          example: "sana@mail.com"
+        passowrd:
+          type: string
+          example: "password123"
+
+    UpdateUser:
+      title: UpdateUser
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "sanaUpdate"
+        email:
+          type: string
+          example: "sana@mail.com"
+        passowrd:
+          type: string
+          example: "password123"
+
+    Pagination:
+      title: Pagination
+      type: object
+      properties:
+        links:
+          type: object
+          properties:
+            next:
+              type: string
+              example: "https://domain.com/users?page=3&limit=10"
+            prev:
+              type: string
+              example: "https://domain.com/users?page=1&limit=10"
+        total_items:
+          type: integer
+          example: 100
+
+    AccountModel:
+      title: AccountModel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        bank_name:
+          type: string
+          example: "BCA"
+        bank_account_number:
+          type: integer
+          example: 1234567890
+        balance:
+          type: integer
+          example: 50000
+
+    AllAccount:  
+      title: AllAccount
+      type: object
+      properties:
+        total_items:
+          type: integer
+          example: 1
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        bank_name:
+          type: string
+          example: "BCA"
+        bank_account_number:
+          type: integer
+          example: 1234567890
+        balance:
+          type: integer
+          example: 50000
+
+    UpdateAccount:
+      title: UpdateAccount
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 2
+        user_id:
+          type: integer
+          example: 1
+        bank_name:
+          type: string
+          example: "BCA"
+        bank_account_number:
+          type: integer
+          example: 1234567890
+        balance:
+          type: integer
+          example: 100000
+
+    TransactionModel:
+      title: AccountModel
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        user_id:
+          type: integer
+          example: 1
+        bank_name:
+          type: string
+          example: "BCA"
+        bank_account_number:
+          type: integer
+          example: 1234567890
+        balance:
+          type: integer
+          example: 50000
+      
+
+  requestBodies:
+    CreateUser:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "sana"
+              email:
+                type: string
+                example: "sana@mail.com"
+              passowrd:
+                type: string
+                example: "password123"
+              password_confirmation:
+               type: string
+               example: "password123"
+              profile:
+                type: object
+              identity_type:
+                type: string
+                example: "KTP"
+              identity_number:
+                type: integer
+                example: 1234567890
+              address:
+                type: string
+                example: "Jl. satu no. 2"
+    Login:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              email:
+                type: string
+                example: "sana@mail.com"
+              passowrd:
+                type: string
+                example: "password123"
+    UpdateUser:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+                example: "sanaUpdate"
+              email:
+                type: string
+                example: "sana@mail.com"
+              passowrd:
+                type: string
+                example: "password123"
+              password_confirmation:
+               type: string
+               example: "password123"
+              profile:
+                type: object
+              identity_type:
+                type: string
+                example: "KTP"
+              identity_number:
+                type: integer
+                example: 1234567890
+              address:
+                type: string
+                example: "Jl. satu no. 2"
+
+    CreateAccount:
+     content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 7
+              bank_name:
+                type: string
+                example: "BCA"
+              bank_account_number:
+                type: integer
+                example: 123456789
+              balance:
+               type: integer
+               example: 50000
+
+    UpdateAccount:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              user_id:
+                type: integer
+                example: 6
+              bank_name:
+                type: string
+                example: "BCA"
+              bank_account_number:
+                type: integer
+                example: 1234567890
+              balance:
+               type: integer
+               example: 90000
+
+    CreateTransaction:
+     content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              source_account_id:
+                type: integer
+                example: 1
+              destination_account_id:
+                type: integer
+                example: 2
+              amount:
+                type: integer
+                example: 10000
